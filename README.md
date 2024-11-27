@@ -39,7 +39,9 @@ The crucial task then becomes making correct definitions correctly understanding
 
 # This software
 
-Provides equations from [Rusca et al.](http://aip.scitation.org/doi/10.1063/1.5023340) (more comprehensive in [Wiesemann et al.](https://doi.org/10.48550/arXiv.2405.16578)) written out in two ways:
+## Verified secret key length computation
+
+This software contains equations from [Rusca et al.](http://aip.scitation.org/doi/10.1063/1.5023340) (more comprehensive in [Wiesemann et al.](https://doi.org/10.48550/arXiv.2405.16578)) written out in two ways:
 
 - **Using real-number computations. ("non-computable form")** This allows formally proving theorems about the equations without worrying about floating point arithmetic.
   However, due to the intricacies of supporting arbitrary real numbers, it is not possible to use these equations to compute quantities from given inputs.
@@ -62,9 +64,44 @@ This alleviates the need for separate specifications, aligning definitions and b
 
 Thus, this repository tries to contribute a small but indispensable piece of a full formal framework for quantum key distribution and its post-processing, bridging the gap from theory to applications while avoiding leaky abstractions along the way, at least on the software level.
 
+### Example usage
+
+Set up a Lean environment (see [official Manual: "Quickstart" ](https://lean-lang.org/lean4/doc/quickstart.html)).
+This should also download and install [Elan (lean version manager)](https://github.com/leanprover/elan) and Lean.
+
+To build the executable, run
+```sh
+> lake build
+```
+
+This should give you an executable file, which can be run thus:
+```sh
+> .lake/build/bin/formalqkd
+Enter
+n_Z_μ1 n_Z_μ2 n_X_μ1 n_X_μ2 m_Z_μ1 m_Z_μ2 m_X_μ1 m_X_μ2
+# Now enter some numbers. E.g.,
+8875913 1124087 165048 20902 185856 26055 3456 484
+Enter λ_EC
+# Again enter number, E.g.,
+1776924
+# We get the result, computed by the executable, and partially verified correctness w.r.t. real-number valued specification given in `FormalQKD/RuscaEqn.lean`.
+Computed: SKL = 1464719
+```
+
+## Sifting
+*This is work in progress with only minimal progress at the moment.*
+
+This repository also contains a partial implementation of basis sifting (part of QKD post-processing) with the goal of verifying formal properties about the executable code.
+
+
+### Example usage
+
+No examples at the moment, just look at `FormalQKD/Sifting.lean`.
+
+
 ## Acknowledgements
 
-Many thanks to Geoffrey Irving for help with using their interval arithmetic library and making and accepting modifications that enable this use-case.
+Many thanks to Geoffrey Irving for invaluable help with using their interval arithmetic library, as well as for making and accepting modifications that enable this use-case.
 
 Many thanks to TODO for helpful discussions.
 
