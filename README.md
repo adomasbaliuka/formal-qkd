@@ -1,4 +1,5 @@
 # Formal security proofs and post-processing for quantum key distribution
+[![build](https://github.com/adomasbaliuka/formal-qkd/actions/workflows/lean.yml/badge.svg)](https://github.com/adomasbaliuka/formal-qkd/actions/workflows/lean.yml)
 
 **This is a work in progress! Contributions of any kind very welcome!**
 
