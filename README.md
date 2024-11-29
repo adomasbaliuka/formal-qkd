@@ -2,6 +2,12 @@
 
 **This is a work in progress! Contributions of any kind very welcome!**
 
+
+> [!CAUTION]
+> :warning: **Under no circumstances should this be used for applications relating to cybersecurity.** :warning:
+> 
+> This resource is made for educational and research purposes. It has not been reviewed by security experts and no claims relating to cybersecurity can be made about it or about other projects which use it.
+
 # Background
 
 ## Quantum key distribution
@@ -88,7 +94,7 @@ Enter λ_EC
 Computed: SKL = 1464719
 ```
 
-## Sifting
+## Basis sifting for QKD post-processing
 *This is work in progress with only minimal progress at the moment.*
 
 This repository also contains a partial implementation of basis sifting (part of QKD post-processing) with the goal of verifying formal properties about the executable code.
@@ -101,9 +107,9 @@ No examples at the moment, just look at `FormalQKD/Sifting.lean`.
 
 ## Acknowledgements
 
-Many thanks to Geoffrey Irving for invaluable help with using their interval arithmetic library, as well as for making and accepting modifications that enable this use-case.
+Many thanks to [Geoffrey Irving](https://github.com/girving) for invaluable help with using their interval arithmetic library, as well as for making and accepting modifications that enable this use-case.
 
-Many thanks to TODO for helpful discussions.
+Many thanks to [Jan Krause](https://orcid.org/0000-0002-3428-7025) and [Cameron Foreman](https://orcid.org/0000-0001-7942-9472) for helpful discussions.
 
 Finally, many thanks to the [Mathlib community](https://leanprover.zulipchat.com/) for their patient help with learning to use Lean, the library and also accepting my contributions to it, which are used in this repository.
 
@@ -111,4 +117,4 @@ Finally, many thanks to the [Mathlib community](https://leanprover.zulipchat.com
 
 - `mathlib4` (https://github.com/leanprover-community/mathlib4). The Lean4 mathematics library.
 
-- `interval` (https://github.com/girving/interval) by Geoffrey Irving. A Lean library for formally verified interval arithmetic.
+- `interval` (https://github.com/girving/interval) by Geoffrey Irving. A Lean4 library for formally verified interval arithmetic.
