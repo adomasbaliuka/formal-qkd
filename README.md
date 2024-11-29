@@ -41,7 +41,8 @@ This is a large effort for most formalization projects.
 However, Lean's fast-growing general Mathematics library ([Mathlib](https://github.com/leanprover-community/mathlib4)) makes this much easier compared to even a few years ago.
 Furthermore, progress in AI is making it much easier to write proofs of theorems stated by a human user, while still ensuring that the proof is fully checked by the proof assistant's kernel (a small and heavily scrutinized piece of software which does not use AI and is thus extremely unlikely to approve an incorrect proof).
 
-The crucial task then becomes making correct definitions correctly understanding the meaning of what has been proved, such that they are actually relevant to the practical problems one is solving.
+The crucial task then becomes making correct definitions and not misunderstanding the meaning of proved theorems (which is not always easy but much easier than manually checking all proofs and never missing a single detail).
+This ensures that results are actually relevant to the practical problems one is solving.
 
 # This software
 
