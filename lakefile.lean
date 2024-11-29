@@ -15,3 +15,8 @@ lean_lib «FormalQKD» {
 @[default_target]
 lean_exe «formalqkd» where
   root := `Main
+
+@[test_driver]
+lean_lib FormalQKDTests {
+  globs := #[.submodules `test]
+}

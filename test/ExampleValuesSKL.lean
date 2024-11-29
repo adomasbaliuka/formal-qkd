@@ -27,6 +27,8 @@ section TestNumericSKL
 
 open MyComputable
 
+#print "Checking example values."
+
 #guard isSmall (0.499915958 - binEntropy2 0.11)
 #guard isSmall (7.717529454187349 - γ 0.1 0.1 0.1 0.1)
 #guard isSmall (83.11290681 - δ 1000 1e-6)
