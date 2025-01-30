@@ -111,7 +111,7 @@ No examples at the moment, just look at `FormalQKD/Sifting.lean`.
 
 Many thanks to [Geoffrey Irving](https://github.com/girving) for invaluable help with using their interval arithmetic library, as well as for making and accepting modifications that enable this use-case.
 
-Many thanks to [Jan Krause](https://orcid.org/0000-0002-3428-7025) and [Cameron Foreman](https://orcid.org/0000-0001-7942-9472) for helpful discussions.
+Many thanks to [Roberto G. Pousa](https://orcid.org/0009-0001-8717-653X), [Jan Krause](https://orcid.org/0000-0002-3428-7025) and [Cameron Foreman](https://orcid.org/0000-0001-7942-9472) for helpful discussions.
 
 Finally, many thanks to the [Mathlib community](https://leanprover.zulipchat.com/) for their patient help with learning to use Lean, the library and also accepting my contributions to it, which are used in this repository.
 
