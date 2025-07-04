@@ -6,7 +6,7 @@ package «formal-qkd» {
 }
 
 require interval from git
-  "https://github.com/adomasbaliuka/interval.git" @ "floor"
+  "https://github.com/girving/interval"
 
 lean_lib «FormalQKD» {
   -- add any library configuration options here

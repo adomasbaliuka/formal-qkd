@@ -5,7 +5,6 @@ Authors: Adomas Baliuka
 -/
 import FormalQKD.RuscaEqn
 import Interval
-import Interval.NatFloor
 import Mathlib.Tactic.Basic
 
 /-!
@@ -384,7 +383,7 @@ def secretKeyLength (M_EC : UInt64) : ℕ :=
 lemma secretKeyLength_correct (M_EC : UInt64) :
     secretKeyLength par meas M_EC ≤ Real.secretKeyLength par meas M_EC.toNat := by
   simp [secretKeyLength]
-  apply Interval.le_natFloor
+  apply natFloor_le
   exact mem_approx_SKL par meas M_EC.toNat
 
 end TakingProtocolParamsAndMeasResult

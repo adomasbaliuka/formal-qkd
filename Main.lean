@@ -63,7 +63,6 @@ lemma NatsecretKeyLength_correct
   · exact Nat.zero_le (Real.secretKeyLength my_parameters meas_result lambda_EC)
   · have almost := MyComputable.secretKeyLength_correct my_parameters meas_result (.ofNat lambda_EC)
     have : (UInt64.ofNat lambda_EC).toNat = lambda_EC := by
-      have := UInt64.toNat_ofNat lambda_EC
       have : lambda_EC % UInt64.size = lambda_EC := by
         simp_all only [Nat.mod_succ_eq_iff_lt, Nat.succ_eq_add_one, Nat.reduceAdd, UInt64.toNat_max,
           gt_iff_lt, not_lt, UInt64.toNat_ofNat, Nat.reducePow, Nat.add_one_sub_one]

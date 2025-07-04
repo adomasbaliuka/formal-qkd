@@ -204,10 +204,6 @@ def siftBasis (v1 bases_like : Array State) (h : v1.size = bases_like.size) : Ar
 -- ---------------------------------------------------------------------------------------- Theorems
 variable {α : Type*}
 
-@[simp] -- why doesn't this already exist???
-lemma ofIdx_zero_Array_cons (v : Array α) (s:α):
-  { data := s :: v.data : Array α }[0] = s := by rfl
-
 
 lemma one_lt_succ_nonzero {b : Nat} (h : b ≠ 0) : 1 < succ b := by
   have : 0 < b := by exact Nat.pos_of_ne_zero h
