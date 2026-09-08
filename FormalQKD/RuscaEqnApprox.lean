@@ -35,7 +35,7 @@ QKD, secret, key, length, rate, quantum, key, distribution, post-processing
 
 section MinMaxAbs
 
-variable (α : Type) [LinearOrderedField α]
+variable (α : Type) [Field α] [LinearOrder α] [IsStrictOrderedRing α]
 variable (a b : α)
 
 lemma min_eq_sum_sub_abs : min a b = 1/2 * (a + b) - 1/2 * abs (a - b) := by
@@ -50,42 +50,12 @@ lemma max_eq_sum_add_abs : max a b = 1/2 * (a + b) + 1/2 * abs (a - b) := by
 
 end MinMaxAbs
 
-section NaturalPowers
-
-/-- Natural powers
-* allows negative inputs
-* more precise for small powers
--/
-def Interval.pown (x : Interval) (n : ℕ) : Interval := match n with
-  | 0 => 1
-  | n + 1 => x * x.pown n
-
-/-- Enable `_ ^ _` notation.
--- Nevertheless, use the "normal" `pow` that takes `Interval` exponenets -/
-instance istHPowIntervalNat : HPow Interval ℕ Interval where
-  hPow x n := x.pow (.ofNat n)
-
-/-- `Interval.pow` is conservative for `ℕ` powers -/
-@[approx] lemma Interval.mem_approx_pow_nat' {x : Interval} {n : ℕ} {x' : ℝ}
-    (xm : x' ∈ approx x) : x' ^ n ∈ approx (x ^ n) := by
-  simp only [← Real.rpow_natCast]
-  have : x ^ n = x.pow (.ofNat n) := by unfold HPow.hPow; rfl
-  rw [this]
-  apply Interval.mem_approx_pow xm
-  exact approx_ofNat n
-
-end NaturalPowers
 namespace MyComputable
 
 open Interval
 
 /-- Clip a value within bounds a and b-/
 local notation "M[" a ", " b "]{"c"}" => max a (min b c)
-
-@[approx] lemma mem_approx_natCast (n : ℕ) : (n : ℝ) ∈ approx (n : Interval) := by
-  have : approx (n : Interval) = approx (Interval.ofNat n) := by simp [Nat.cast, NatCast.natCast]
-  rw [this]
-  approx
 
 def Interval.max (a b : Interval) := 1/2 * (a + b) + 1/2 * abs (a - b)
 
@@ -97,43 +67,31 @@ def Interval.min (a b : Interval) := 1/2 * (a + b) - 1/2 * abs (a - b)
 instance instMinInterval : Min Interval where
   min := Interval.min
 
--- TODO might be actually equal to the min above!
--- def betterMin (a b : Interval) : Interval :=
---   {
---     lo := min a.lo b.lo
---     hi := min a.hi b.hi
---     norm := by simp_all only [Floating.min_eq_nan, lo_eq_nan, hi_eq_nan]
---     le' := by
---       intros
---       simp_all only [ne_eq, Floating.min_eq_nan, lo_eq_nan, not_or, hi_eq_nan,
---         not_false_eq_true, Floating.val_min, le_min_iff, min_le_iff, le, true_or, or_true, and_self]
---   }
-
 @[approx] lemma mem_approx_min {a b : ℝ} {a' b' : Interval}
-    (ha : a ∈ approx a') (hb : b ∈ approx b') :
-    min a b ∈ approx (Interval.min a' b') := by
+    (ha : approx a' a) (hb : approx b' b) :
+    approx (Interval.min a' b') (min a b) := by
   rw [min_eq_sum_sub_abs, Interval.min]
   approx
 
 @[approx] lemma mem_approx_max {a b : ℝ} {a' b' : Interval}
-    (ha : a ∈ approx a') (hb : b ∈ approx b') :
-    max a b ∈ approx (Interval.max a' b') := by
+    (ha : approx a' a) (hb : approx b' b) :
+    approx (Interval.max a' b') (max a b) := by
   rw [max_eq_sum_add_abs, Interval.max]
   approx
 
-@[approx] lemma mem_approx_maxmin {n : ℕ} {a : ℝ} (a' : Interval) (ha : a ∈ approx a') :
-    M[0, (n : ℝ)]{a} ∈ approx (M[0, (n : Interval)]{a'}) := by
+@[approx] lemma mem_approx_maxmin {n : ℕ} {a : ℝ} (a' : Interval) (ha : approx a' a) :
+    approx (M[0, (n : Interval)]{a'}) (M[0, (n : ℝ)]{a}) := by
   apply mem_approx_max
-  · exact mem_approx_zero
+  · simp
   · apply mem_approx_min
-    · apply approx_ofNat
+    · exact approx_natCast
     · assumption
 
 @[approx] lemma mem_approx_maxmin' {n a : ℝ} {a' n' : Interval}
-    (ha : a ∈ approx a') (hn : n ∈ approx n'):
-    M[0, (n : ℝ)]{a} ∈ approx (M[0, n']{a'}) := by
+    (ha : approx a' a) (hn : approx n' n) :
+    approx (M[0, n']{a'}) (M[0, (n : ℝ)]{a}) := by
   apply mem_approx_max
-  · exact mem_approx_zero
+  · simp
   · apply mem_approx_min <;> assumption
 
 instance : ToString Floating where
@@ -146,8 +104,8 @@ abbrev logb (b x : Interval) : Interval := log x / log b
 abbrev log₂ (x : Interval) : Interval := logb 2 x
 
 @[approx] lemma mem_approx_log₂ {x : Interval} {a : ℝ}
-    (ax : a ∈ approx x) : Real.log₂ a ∈ approx (log₂ x) := by
-  rw [log₂, Real.log₂, Real.logb, logb]
+    (ax : approx x a) : approx (log₂ x) (Real.log₂ a) := by
+  simp only [log₂, logb, Real.log₂, Real.logb]
   approx
 
 /-!
@@ -158,7 +116,7 @@ def binEntropy2 (p : Interval) := (-p * log p - (1 - p) * log (1 - p)) / log 2
 
 /-- `binEntropy` is conservative -/
 @[approx] lemma mem_approx_binEntropy {x : Interval} {a : ℝ}
-    (ax : a ∈ approx x) : Real.binEntropy2 a ∈ approx (binEntropy2 x) := by
+    (ax : approx x a) : approx (binEntropy2 x) (Real.binEntropy2 a) := by
   simp only [binEntropy2, Real.binEntropy2, Real.binEntropy, Real.log_inv, mul_neg]
   have : (-(a * Real.log a) + -((1 - a) * Real.log (1 - a))) =
     (-a * a.log - (1 - a) * (1 - a).log) := by ring
@@ -170,22 +128,22 @@ def γ (a b c d : Interval) :=
            (c + d) * (19 ^ 2) / (c * d * (1 - b) * b * (a * a))
        ) / (log 2.))
 
-/-- `binEntropy` is conservative -/
+/-- `γ` is conservative -/
 @[approx] lemma mem_approx_γ {ia ib ic id : Interval} {a b c d : ℝ}
-    (ia_aprox : a ∈ approx ia)
-    (ib_aprox : b ∈ approx ib)
-    (ic_aprox : c ∈ approx ic)
-    (id_aprox : d ∈ approx id)
-    : Real.γ a b c d ∈ approx (γ ia ib ic id) := by
+    (ia_aprox : approx ia a)
+    (ib_aprox : approx ib b)
+    (ic_aprox : approx ic c)
+    (id_aprox : approx id d) :
+    approx (γ ia ib ic id) (Real.γ a b c d) := by
   rw [γ, Real.γ]
   approx
 
 def δ (n ϵ : Interval) := sqrt (n * log (1 / ϵ) / 2)
 
 @[approx] lemma mem_approx_δ {n' ε': Interval} {n ε : ℝ}
-    (approxn : n ∈ approx n')
-    (approxε : ε ∈ approx ε') :
-    Real.δ n ε ∈ approx (δ n' ε') := by
+    (approxn : approx n' n)
+    (approxε : approx ε' ε) :
+    approx (δ n' ε') (Real.δ n ε) := by
   unfold Real.δ δ
   approx
 
@@ -198,7 +156,7 @@ def τ0 (par : ProtocolParams) : Interval :=
   ((par.P_μ1) * exp (- par.μ1) ) * 1  + (par.P_μ2 * exp (- par.μ2) ) * 1
 
 @[approx] lemma mem_approx_τ0 (par : ProtocolParams) :
-    ProtocolParams.τ0 par ∈ approx (MyComputable.τ0 par ) := by
+    approx (MyComputable.τ0 par) (ProtocolParams.τ0 par) := by
   simp only [ProtocolParams.τ0, MyComputable.τ0]
   approx
 
@@ -206,7 +164,7 @@ def τ1 (par : ProtocolParams) : Interval :=
   ((par.P_μ1) * exp (-par.μ1)) * (par.μ1) + (par.P_μ2 * exp (- par.μ2)) * par.μ2
 
 @[approx] lemma mem_approx_τ1 (par : ProtocolParams) :
-    ProtocolParams.τ1 par ∈ approx (MyComputable.τ1 par ) := by
+    approx (MyComputable.τ1 par) (ProtocolParams.τ1 par) := by
   simp only [ProtocolParams.τ1, MyComputable.τ1]
   approx
 
@@ -222,56 +180,56 @@ variable (par : ProtocolParams)
 def n_Z_μ1_plus : Interval := exp par.μ1 / par.P_μ1 * (meas.n_Z_μ1 + δ (meas.n_Z) par.ε_1)
 
 @[approx] lemma mem_approx_n_Z_μ1_plus :
-    Real.n_Z_μ1_plus par meas ∈ approx (n_Z_μ1_plus par meas) := by
+    approx (n_Z_μ1_plus par meas) (Real.n_Z_μ1_plus par meas) := by
   simp only [Real.n_Z_μ1_plus, n_Z_μ1_plus]
   approx
 
 def n_Z_μ1_minus : Interval := exp par.μ1 / par.P_μ1 * (meas.n_Z_μ1 - δ meas.n_Z par.ε_1)
 
 @[approx] lemma mem_approx_n_Z_μ1_minus :
-    Real.n_Z_μ1_minus par meas ∈ approx (n_Z_μ1_minus par meas) := by
+    approx (n_Z_μ1_minus par meas) (Real.n_Z_μ1_minus par meas) := by
   simp only [Real.n_Z_μ1_minus, n_Z_μ1_minus]
   approx
 
 def n_Z_μ2_plus : Interval := exp par.μ2 / par.P_μ2 * (meas.n_Z_μ2 + δ meas.n_Z par.ε_1)
 
 @[approx] lemma mem_approx_n_Z_μ2_plus :
-    Real.n_Z_μ2_plus par meas ∈ approx (n_Z_μ2_plus par meas) := by
+    approx (n_Z_μ2_plus par meas) (Real.n_Z_μ2_plus par meas) := by
   simp only [Real.n_Z_μ2_plus, n_Z_μ2_plus]
   approx
 
 def n_Z_μ2_minus : Interval := exp par.μ2 / par.P_μ2 * (meas.n_Z_μ2 - δ meas.n_Z par.ε_1)
 
 @[approx] lemma mem_approx_n_Z_μ2_minus :
-    Real.n_Z_μ2_minus par meas ∈ approx (n_Z_μ2_minus par meas) := by
+    approx (n_Z_μ2_minus par meas) (Real.n_Z_μ2_minus par meas) := by
   simp only [Real.n_Z_μ2_minus, n_Z_μ2_minus]
   approx
 
 def n_X_μ1_plus : Interval := exp par.μ1 / par.P_μ1 * (meas.n_X_μ1 + δ meas.n_X par.ε_1)
 
 @[approx] lemma mem_approx_n_X_μ1_plus :
-    Real.n_X_μ1_plus par meas ∈ approx (n_X_μ1_plus par meas) := by
+    approx (n_X_μ1_plus par meas) (Real.n_X_μ1_plus par meas) := by
   simp only [Real.n_X_μ1_plus, n_X_μ1_plus]
   approx
 
 def n_X_μ2_minus : Interval := exp par.μ2 / par.P_μ2 * (meas.n_X_μ2 - δ meas.n_X par.ε_1)
 
 @[approx] lemma mem_approx_n_X_μ2_minus :
-    Real.n_X_μ2_minus par meas ∈ approx (n_X_μ2_minus par meas) := by
+    approx (n_X_μ2_minus par meas) (Real.n_X_μ2_minus par meas) := by
   simp only [Real.n_X_μ2_minus, n_X_μ2_minus]
   approx
 
 def m_X_μ1_plus : Interval := exp par.μ1 / par.P_μ1 * (meas.m_X_μ1 + δ meas.m_X par.ε_1)
 
 @[approx] lemma mem_approx_m_X_μ1_plus :
-    Real.m_X_μ1_plus par meas ∈ approx (m_X_μ1_plus par meas) := by
+    approx (m_X_μ1_plus par meas) (Real.m_X_μ1_plus par meas) := by
   simp only [Real.m_X_μ1_plus, m_X_μ1_plus]
   approx
 
 def m_X_μ2_minus : Interval := exp par.μ2 / par.P_μ2 * (meas.m_X_μ2 - δ meas.m_X par.ε_1)
 
 @[approx] lemma mem_approx_m_X_μ2_minus :
-    Real.m_X_μ2_minus par meas ∈ approx (m_X_μ2_minus par meas) := by
+    approx (m_X_μ2_minus par meas) (Real.m_X_μ2_minus par meas) := by
   simp only [Real.m_X_μ2_minus, m_X_μ2_minus]
   approx
 
@@ -279,7 +237,7 @@ def s_Z0_u : Interval := 2 *
   ((((τ0 par) * exp par.μ2) / par.P_μ2 * (meas.m_Z_μ2 + δ meas.m_Z par.ε_2)) + δ meas.n_Z par.ε_1)
 
 @[approx] lemma mem_approx_s_Z0_u :
-    Real.s_Z0_u par meas ∈ approx (s_Z0_u par meas) := by
+    approx (s_Z0_u par meas) (Real.s_Z0_u par meas) := by
   simp only [Real.s_Z0_u, s_Z0_u]
   approx
 
@@ -294,7 +252,7 @@ def s_X0_u : Interval :=
   }
 
 @[approx] lemma mem_approx_s_X0_u :
-    Real.s_X0_u par meas ∈ approx (s_X0_u par meas) := by
+    approx (s_X0_u par meas) (Real.s_X0_u par meas) := by
   simp only [Real.s_X0_u, s_X0_u]
   approx
 
@@ -305,7 +263,7 @@ def v_X1_u : Interval :=
     ((τ1 par) * (m_X_μ1_plus - m_X_μ2_minus) / (par.μ1 - par.μ2))
   }
 
-@[approx] lemma mem_approx_v_X1_u : Real.v_X1_u par meas ∈ approx (v_X1_u par meas) := by
+@[approx] lemma mem_approx_v_X1_u : approx (v_X1_u par meas) (Real.v_X1_u par meas) := by
   simp only [Real.v_X1_u, v_X1_u]
   approx
 
@@ -316,7 +274,7 @@ def s_Z0_l : Interval :=
     (τ0 par) / (par.μ1 - par.μ2) * (par.μ1 * n_Z_μ2_minus - par.μ2 * n_Z_μ1_plus)
   }
 
-@[approx] lemma mem_approx_s_Z0_l : Real.s_Z0_l par meas ∈ approx (s_Z0_l par meas) := by
+@[approx] lemma mem_approx_s_Z0_l : approx (s_Z0_l par meas) (Real.s_Z0_l par meas) := by
   simp only [Real.s_Z0_l, s_Z0_l]
   approx
 
@@ -333,7 +291,7 @@ def s_Z1_l : Interval :=
         - ((μ1 ^ 2 - μ2 ^ 2) / (μ1 ^ 2) * (s_Z0_u / (τ0 par))))
   }
 
-@[approx] lemma mem_approx_s_Z1_l : Real.s_Z1_l par meas ∈ approx (s_Z1_l par meas) := by
+@[approx] lemma mem_approx_s_Z1_l : approx (s_Z1_l par meas) (Real.s_Z1_l par meas) := by
   simp only [Real.s_Z1_l, s_Z1_l]
   approx
 
@@ -348,7 +306,7 @@ def s_X1_l : Interval :=
     - ((par.μ1 ^ 2 - par.μ2 ^ 2) / (par.μ1 ^ 2) * (s_X0_u / (τ0 par))))
   }
 
-@[approx] lemma mem_approx_s_X1_l : Real.s_X1_l par meas ∈ approx (s_X1_l par meas) := by
+@[approx] lemma mem_approx_s_X1_l : approx (s_X1_l par meas) (Real.s_X1_l par meas) := by
   simp only [Real.s_X1_l, s_X1_l]
   approx
 
@@ -360,11 +318,11 @@ def Phi_Z_u : Interval :=
     (v_X1_u / s_X1_l + γ par.ε_sec (v_X1_u / s_X1_l) s_Z1_l s_X1_l)
   }
 
-@[approx] lemma mem_approx_Phi_Z_u : Real.Phi_Z_u par meas ∈ approx (Phi_Z_u par meas) := by
+@[approx] lemma mem_approx_Phi_Z_u : approx (Phi_Z_u par meas) (Real.Phi_Z_u par meas) := by
   simp only [Real.Phi_Z_u, Phi_Z_u]
   approx
 
-def SKL (M_EC : ℕ) : Interval := -- TODO make Nat
+def SKL (M_EC : ℕ) : Interval :=
   let s_Z0_l := s_Z0_l par meas
   let Phi_Z_u := Phi_Z_u par meas
   let s_Z1_l := s_Z1_l par meas
@@ -372,7 +330,7 @@ def SKL (M_EC : ℕ) : Interval := -- TODO make Nat
   s_Z0_l + s_Z1_l * (1 - binEntropy2 Phi_Z_u) - M_EC + const_term
 
 @[approx] lemma mem_approx_SKL (M_EC : ℕ) :
-    (Real.SKL par meas M_EC) ∈ approx (SKL par meas M_EC) := by
+    approx (SKL par meas M_EC) (Real.SKL par meas M_EC) := by
   simp only [Real.SKL, SKL]
   approx
 

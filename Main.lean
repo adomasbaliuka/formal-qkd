@@ -5,7 +5,7 @@ set_option autoImplicit false
 open Sifting
 
 def parseStates (s : String) : Option (List State) :=
-  List.allSome <| (s.stripSuffix "\n").toList.map fun c => State.ofChar c
+  List.allSome <| (s.dropSuffix "\n").toString.toList.map fun c => State.ofChar c
 
 
 open State in
@@ -23,7 +23,7 @@ def main_count_states : IO Unit := do
   IO.println s!"Hello! {counts}"
 
 def String.parseMeasResult (s : String) : Option MeasResult := do
-  let mys := (String.stripPrefix s "\n").stripSuffix "\n"
+  let mys := ((s.dropPrefix "\n").toString.dropSuffix "\n").toString
   let nums := mys.splitOn
   if nums.length != 8 then failure else
   let num_list? := nums.map String.toNat?
@@ -62,17 +62,14 @@ lemma NatsecretKeyLength_correct
   split_ifs
   · exact Nat.zero_le (Real.secretKeyLength my_parameters meas_result lambda_EC)
   · have almost := MyComputable.secretKeyLength_correct my_parameters meas_result (.ofNat lambda_EC)
-    have : (UInt64.ofNat lambda_EC).toNat = lambda_EC := by
-      have : lambda_EC % UInt64.size = lambda_EC := by
-        simp_all only [Nat.mod_succ_eq_iff_lt, Nat.succ_eq_add_one, Nat.reduceAdd, UInt64.toNat_max,
-          gt_iff_lt, not_lt, UInt64.toNat_ofNat, Nat.reducePow, Nat.add_one_sub_one]
-        linarith
-      exact this
+    have hmax : UInt64.max.toNat = 2 ^ 64 - 1 := by decide
+    have hlt : lambda_EC < 2 ^ 64 := by omega
+    have : (UInt64.ofNat lambda_EC).toNat = lambda_EC := UInt64.toNat_ofNat_of_lt' hlt
     convert almost
     exact this.symm
 
 def computeSKL (lambda_EC_str : String) (meas_detections : String) : IO Unit :=
-  if let some lambda_EC := lambda_EC_str.stripSuffix "\n" |> String.toNat? then
+  if let some lambda_EC := (lambda_EC_str.dropSuffix "\n").toString |> String.toNat? then
     -- we parsed a Nat here, but later we want to use UInt64 inputs.
     if let some meas_result := meas_detections.parseMeasResult then
         let my_parameters : ProtocolParams := {}  -- use default values!
