@@ -3,9 +3,11 @@ Copyright (c) 2024 Adomas Baliuka. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Adomas Baliuka
 -/
-import FormalQKD.RuscaEqn
-import Interval
-import Mathlib.Tactic.Basic
+module
+
+public import FormalQKD.RuscaEqn
+public import Interval
+public import Mathlib.Tactic.Basic
 
 /-!
 # Secret Key Length Equations (computable version!)
@@ -28,6 +30,8 @@ is rigorously ensured.
 QKD, secret, key, length, rate, quantum, key, distribution, post-processing
 
 -/
+
+@[expose] public section
 
 /-!
 ### Definitions of minimum and maximum using interval arithmetic
@@ -117,7 +121,8 @@ def binEntropy2 (p : Interval) := (-p * log p - (1 - p) * log (1 - p)) / log 2
 /-- `binEntropy` is conservative -/
 @[approx] lemma mem_approx_binEntropy {x : Interval} {a : ℝ}
     (ax : approx x a) : approx (binEntropy2 x) (Real.binEntropy2 a) := by
-  simp only [binEntropy2, Real.binEntropy2, Real.binEntropy, Real.log_inv, mul_neg]
+  simp only [binEntropy2, Real.binEntropy2, Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub,
+    Real.negMulLog_eq_neg]
   have : (-(a * Real.log a) + -((1 - a) * Real.log (1 - a))) =
     (-a * a.log - (1 - a) * (1 - a).log) := by ring
   rw [this]
