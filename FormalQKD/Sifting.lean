@@ -3,12 +3,13 @@ Copyright (c) 2024 Adomas Baliuka. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Adomas Baliuka
 -/
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Data.Fintype.Card
-import Mathlib.Data.Int.Star
-import Mathlib.Tactic.Basic
-import Mathlib.Tactic.DeriveFintype
-import Mathlib.Analysis.SpecialFunctions.Exp
+module
+
+public import Mathlib.Data.Fintype.Basic
+public import Mathlib.Data.Fintype.Card
+public import Mathlib.Data.Int.Star
+public import Mathlib.Tactic.Basic
+public import Mathlib.Analysis.SpecialFunctions.Exp
 
 
 /-!
@@ -26,6 +27,8 @@ QKD, quantum, key, distribution, sifting, post-processing
 
 -/
 
+@[expose] public section
+
 
 namespace Sifting   ---------------------------------------------------------------------------
 
@@ -41,7 +44,10 @@ inductive State where
   | v
   | p
   | m
-deriving DecidableEq, Inhabited, Fintype
+deriving DecidableEq, Inhabited
+
+-- TODO use `deriving Fintype` once mathlib4#44243 is fixed.
+instance : Fintype State := ⟨{.H, .V, .P, .M, .h, .v, .p, .m}, by intro x; cases x <;> simp⟩
 
 namespace State  ----------------------------------------------------------------------------- State
 
