@@ -3,10 +3,12 @@ Copyright (c) 2024 Adomas Baliuka. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Adomas Baliuka
 -/
-import Mathlib.Analysis.SpecialFunctions.BinaryEntropy
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Mathlib.Tactic.Basic
+module
+
+public import Mathlib.Analysis.SpecialFunctions.BinaryEntropy
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Analysis.SpecialFunctions.Log.Base
+public import Mathlib.Tactic.Basic
 
 /-!
 # Secret Key Length Equations
@@ -27,6 +29,8 @@ It approximates these equations using interval arithmetic.
 QKD, secret, key, length, rate, quantum, key, distribution, post-processing
 
 -/
+
+@[expose] public section
 
 
 /-- Clip a value within bounds a and b-/

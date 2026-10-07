@@ -6,7 +6,7 @@ package «formal-qkd» {
 }
 
 require interval from git
-  "https://github.com/girving/interval"
+  "https://github.com/adomasbaliuka/interval" @ "feat/useModuleSystem"
 
 lean_lib «FormalQKD» {
   -- add any library configuration options here
@@ -14,7 +14,7 @@ lean_lib «FormalQKD» {
 
 @[default_target]
 lean_exe «formalqkd» where
-  root := `Main
+  root := `ComputeSKL
 
 @[test_driver]
 lean_lib FormalQKDTests {
