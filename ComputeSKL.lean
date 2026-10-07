@@ -1,4 +1,8 @@
-import FormalQKD
+module
+
+public import FormalQKD
+
+@[expose] public section
 
 set_option autoImplicit false
 
